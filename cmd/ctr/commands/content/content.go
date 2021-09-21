@@ -17,6 +17,7 @@
 package content
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -29,10 +30,10 @@ import (
 	"github.com/containerd/containerd/content"
 	"github.com/containerd/containerd/errdefs"
 	"github.com/containerd/containerd/log"
+
 	units "github.com/docker/go-units"
 	digest "github.com/opencontainers/go-digest"
 	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
-	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	exec "golang.org/x/sys/execabs"
 )

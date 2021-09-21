@@ -17,6 +17,7 @@
 package mount
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -25,7 +26,7 @@ import (
 	"time"
 
 	"github.com/containerd/continuity/fs/fstest"
-	"github.com/pkg/errors"
+
 	"golang.org/x/sys/unix"
 )
 
@@ -126,7 +127,7 @@ func testFMountatWithFileFd(t *testing.T, root string) {
 
 	err = fMountat(f.Fd(), filepath.Join(root, "empty"), filepath.Join(root, "work"), "", 0, "")
 	if !errors.Is(err, expectedErr) {
-		t.Fatalf("expected error %v, but got %v", expectedErr, errors.Cause(err))
+		t.Fatalf("expected error %v, but got %v", expectedErr, err)
 	}
 }
 

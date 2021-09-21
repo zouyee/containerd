@@ -41,10 +41,10 @@ import (
 	"github.com/containerd/containerd/namespaces"
 	"github.com/containerd/containerd/snapshots"
 	"github.com/containerd/containerd/snapshots/native"
+
 	"github.com/gogo/protobuf/types"
-	digest "github.com/opencontainers/go-digest"
+	"github.com/opencontainers/go-digest"
 	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
-	"github.com/pkg/errors"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -289,7 +289,7 @@ func TestMigrations(t *testing.T) {
 
 					bref := string(sbkt.Get(bucketKeyRef))
 					if bref != s.bref {
-						return errors.Errorf("unexpected reference key %q, expected %q", bref, s.bref)
+						return fmt.Errorf("unexpected reference key %q, expected %q", bref, s.bref)
 					}
 				}
 

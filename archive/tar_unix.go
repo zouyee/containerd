@@ -21,6 +21,7 @@ package archive
 
 import (
 	"archive/tar"
+	"fmt"
 	"os"
 	"strings"
 	"syscall"
@@ -123,7 +124,7 @@ func getxattr(path, attr string) ([]byte, error) {
 func setxattr(path, key, value string) error {
 	// Do not set trusted attributes
 	if strings.HasPrefix(key, "trusted.") {
-		return errors.Wrap(unix.ENOTSUP, "admin attributes from archive not supported")
+		return fmt.Errorf("admin attributes from archive not supported: %w", unix.ENOTSUP)
 	}
 	return unix.Lsetxattr(path, key, []byte(value), 0)
 }
@@ -143,12 +144,12 @@ func copyDirInfo(fi os.FileInfo, path string) error {
 			}
 		}
 		if err != nil {
-			return errors.Wrapf(err, "failed to chown %s", path)
+			return fmt.Errorf( "failed to chown %s: %w", path, err)
 		}
 	}
 
 	if err := os.Chmod(path, fi.Mode()); err != nil {
-		return errors.Wrapf(err, "failed to chmod %s", path)
+		return fmt.Errorf("failed to chmod %s: %w", path, err)
 	}
 
 	timespec := []unix.Timespec{
@@ -156,7 +157,7 @@ func copyDirInfo(fi os.FileInfo, path string) error {
 		unix.NsecToTimespec(syscall.TimespecToNsec(fs.StatMtime(st))),
 	}
 	if err := unix.UtimesNanoAt(unix.AT_FDCWD, path, timespec, unix.AT_SYMLINK_NOFOLLOW); err != nil {
-		return errors.Wrapf(err, "failed to utime %s", path)
+		return fmt.Errorf("failed to utime %s: %w", path, err)
 	}
 
 	return nil
@@ -168,7 +169,7 @@ func copyUpXAttrs(dst, src string) error {
 		if err == unix.ENOTSUP || err == sysx.ENODATA {
 			return nil
 		}
-		return errors.Wrapf(err, "failed to list xattrs on %s", src)
+		return fmt.Errorf("failed to list xattrs on %s: %w", src, err)
 	}
 	for _, xattr := range xattrKeys {
 		// Do not copy up trusted attributes
@@ -180,10 +181,10 @@ func copyUpXAttrs(dst, src string) error {
 			if err == unix.ENOTSUP || err == sysx.ENODATA {
 				continue
 			}
-			return errors.Wrapf(err, "failed to get xattr %q on %s", xattr, src)
+			return fmt.Errorf( "failed to get xattr %q on %s: %w", xattr, src, err)
 		}
 		if err := lsetxattrCreate(dst, xattr, data); err != nil {
-			return errors.Wrapf(err, "failed to set xattr %q on %s", xattr, dst)
+			return fmt.Errorf("failed to set xattr %q on %s: %w", xattr, dst, err)
 		}
 	}
 

@@ -28,8 +28,8 @@ import (
 	"github.com/containerd/containerd/leases"
 	"github.com/containerd/containerd/metadata/boltutil"
 	"github.com/containerd/containerd/namespaces"
-	digest "github.com/opencontainers/go-digest"
-	"github.com/pkg/errors"
+
+	"github.com/opencontainers/go-digest"
 	bolt "go.etcd.io/bbolt"
 )
 

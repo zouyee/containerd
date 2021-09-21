@@ -18,9 +18,10 @@ package tracing
 
 import (
 	"context"
+	"fmt"
 
 	srvconfig "github.com/containerd/containerd/services/server/config"
-	"github.com/pkg/errors"
+
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
@@ -45,7 +46,7 @@ func InitOpenTelemetry(config *srvconfig.Config) (func(), error) {
 
 	// Validate configuration
 	if err := config.OpenTelemetry.Validate(); err != nil {
-		return nil, errors.Wrap(err, "invalid open telemetry configuration")
+		return nil, fmt.Errorf("invalid open telemetry configuration: %w", err)
 	}
 
 	res, err := resource.New(ctx,
@@ -55,7 +56,7 @@ func InitOpenTelemetry(config *srvconfig.Config) (func(), error) {
 		),
 	)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create resource")
+		return nil, fmt.Errorf("failed to create resource: %w", err)
 	}
 
 	// Configure OTLP trace exporter and set it up to connect to OpenTelemetry collector
@@ -65,7 +66,7 @@ func InitOpenTelemetry(config *srvconfig.Config) (func(), error) {
 		otlptracegrpc.WithDialOption(grpc.WithBlock()),
 	)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create trace exporter")
+		return nil, fmt.Errorf("failed to create trace exporter: %w", err)
 	}
 
 	// Register the trace exporter with a TracerProvider, using a batch span
